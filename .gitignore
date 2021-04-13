@@ -1,1 +1,4 @@
 src/sql_parser.js
+src/sql2agg-browser.js
+src/bundle.js
+build/sql2agg.html
