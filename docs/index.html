@@ -1,8 +1,8 @@
 <html lang="en">
-    <head>
-        <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
-        <meta content="utf-8" http-equiv="encoding"/>
-        <meta content="no-cache" http-equiv="cache-control"/>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <meta content="utf-8" http-equiv="encoding"/>
+    <meta content="no-cache" http-equiv="cache-control"/>
 <script>
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 
@@ -1765,16 +1765,13 @@ if (typeof module !== 'undefined' && require.main === module) {
 }).call(this)}).call(this,require('_process'))
 },{"_process":3,"fs":1,"path":2}]},{},[4]);
 </script>
-    </head>
-
-    <body style="height: 100%" onload="sql2agg(sql, mql)">
-        <h1>SQL to MongoDB aggregate</h1>
-        <table style="width:100%; height:90%;">
-            <tr style="height:100%">
-                <td>
-                    <textarea id="sql" style="width:100%; height:100%" 
-                        oninput="sql2agg(this, mql)"
-                    >-- Test SQL statement
+  </head>
+  <body style="height: 100%" onload="sql2agg(sql, mql)">
+    <h1>SQL to MongoDB aggregate</h1>
+    <table style="width:100%; height:90%;">
+      <tr style="height:100%">
+        <td>
+          <textarea id="sql" style="width:100%; height:100%" oninput="sql2agg(this, mql)">-- Test SQL statement
 
 -- Keywords are case-insensitive
 SeLeCT 
@@ -1796,7 +1793,7 @@ WHERE
 
     -- Use parenthesis to combine logical operators
     -- notice that $and and $or are combined where possible
-    ((f4=977) and f5>=555) and (f6>6 or f7<=2)
+    ((f4=977) and f5&gt;=555) and (f6&gt;6 or f7&lt;=2)
     -- BETWEEN operator supported
     or f8 between 7 and 20
     -- IN operator supported using $in
@@ -1819,14 +1816,12 @@ ORDER BY
     field5 DESC
 
 SKIP 20
-LIMIT 50
-
-                    </textarea>
-                </td>
-                <td>
-                    <textarea id="mql" readonly="true" style="width:100%; height:100%">MQL</textarea>
-                </td>
-            </tr>
-        </table>
-    </body>
+LIMIT 50</textarea>
+        </td>
+        <td>
+          <textarea id="mql" readonly="true" style="width:100%; height:100%">MQL</textarea>
+        </td>
+      </tr>
+    </table>
+  </body>
 </html>

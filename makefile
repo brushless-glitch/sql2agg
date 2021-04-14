@@ -18,7 +18,7 @@ src/bundle.js: src/index.js src/parser.js src/sql_parser.js
 
 build/sql2agg.html: src/index.html src/bundle.js
 	mkdir -p build
-	scripts/package-js.sh src/index.html build/sql2agg.html
+	scripts/package-js.sh
 
 .PHONY: release
 release: docs/index.html
