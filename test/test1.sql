@@ -1,13 +1,27 @@
 -- Test SQL statement
 
-select field1, field2,
-    full_name = first_name + ' ' + last_name,
-    just_name = first_name
+-- Keywords are case-insensitive
+select 
+    -- Verbatim fields
+    field1, field2,
+    -- name = field supported
+    just_name = first_name,
+    -- Text concatenation
+    full_name = first_name + ' ' + last_name
 FROM t1
+    -- See README for limitations on joins
     LEFT OUTER JOIN t2 ON t1.xx =  t2.zz
     LEFT JOIN t3 ON t1.yy =  t3.zzz
-WHERE ((f4=977) and f5>=555) and (f6>6 or f7<=2)
+
+WHERE 
+
+    -- Use parenthesis to combine logical operators
+    ((f4=977) and f5>=555) and (f6>6 or f7<=2)
+    -- BETWEEN operator supported
     or f8 between 7 and 20
+    -- IN operator supported using $in
     and f9 in (1,2,3,15,222)
+    -- text comparison
     or t1 = 'blablabla'
+    -- LIKE operator translated to $regex
     or city like 'L_s %'
