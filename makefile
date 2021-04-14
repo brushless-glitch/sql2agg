@@ -13,11 +13,11 @@ src/sql_parser.js: src/sql_parser.jison
 .PHONY: html
 html: src/bundle.js build/sql2agg.html
 
-src/bundle.js: src/index.js src/parser.js src/sql_parser.jison
+src/bundle.js: src/index.js src/parser.js src/sql_parser.js
 	browserify src/index.js -o src/bundle.js
 
 build/sql2agg.html: src/index.html src/bundle.js
-	mkdir -p sql2agg/build
+	mkdir -p build
 	scripts/package-js.sh src/index.html build/sql2agg.html
 
 .PHONY: release
@@ -27,5 +27,7 @@ docs/index.html: build/sql2agg.html
 	mkdir -p docs
 	cp build/sql2agg.html docs/index.html
 
-
+.PHONY: clean
+clean:
+	rm -f src/bundle.js src/sql_parser.js build/sql2agg.html 
 

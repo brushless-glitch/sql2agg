@@ -7,11 +7,43 @@ exports.run = function(input) {
             result.push({"$match" : filters});
         };
 
+        if (collection.lookups) {
+            collection.lookups.forEach(element => {
+                result.push({ "$lookup": element });
+            });
+        }
+
         if (fields) {
             result.push({"$project" : fields});
         }
 
-        return "db." + collection + ".aggregate(" + JSON.stringify(result, null, 2) + ")";
+        return "db." + collection.main + ".aggregate(" + JSON.stringify(result, null, 2) + ")";
+    }
+
+    p.parser.yy.addLookup = function(collection, foreign, coll1, field1, coll2, field2) {
+        var lookup = { from: foreign, as: foreign + "_array" };
+        if (!collection.lookups) {
+            collection.lookups = [];
+        }
+        
+        if (coll1 == collection.main) {
+            lookup.localField = field1;
+        } else if (coll1 == foreign) {
+            lookup.foreignField = field1;
+        }
+
+        if (coll2 == collection.main) {
+            lookup.localField = field2;
+        } else if (coll2 == foreign) {
+            lookup.foreignField = field2;
+        }
+
+        if (!lookup.localField || !lookup.foreignField) {
+            throw "see README for join limitations";
+        }
+
+        collection.lookups.push(lookup);
+        return collection;
     }
 
     p.parser.yy.appendField = function(fields, field) {

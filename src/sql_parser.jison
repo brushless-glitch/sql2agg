@@ -18,6 +18,11 @@ BETWEEN               return 'BETWEEN'
 IN                    return 'IN'
 AS                    return 'AS'
 LIKE                  return 'LIKE'
+LEFT                  return 'LEFT'
+RIGHT                 return 'RIGHT'
+OUTER                 return 'OUTER'
+JOIN                  return 'JOIN'
+ON                    return 'ON'
 ['][^']*[']           return 'TEXT'
 [a-zA-Z_][a-zA-Z0-9_]*  return 'IDENTIFIER'
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
@@ -38,6 +43,7 @@ LIKE                  return 'LIKE'
 ">"                   return '>'
 "<"                   return '<'
 ","                   return ','
+"."                   return '.'
 <<EOF>>               return 'EOF'
 .                     return 'INVALID'
 
@@ -93,9 +99,9 @@ expression
 text_expression
     : text_literal
     | IDENTIFIER
-        { $$ = '$' + $1 }
+        { $$ = '$' + $1; }
     | text_expression '+' text_expression
-        { $$ = yy.combineConcats($1, $3) }
+        { $$ = yy.combineConcats($1, $3); }
     ;
 
 text_literal
@@ -108,7 +114,20 @@ arithmetic_expression
     ;
 
 table
-    : 'IDENTIFIER'
+    : IDENTIFIER
+        { $$ = { main: $1 }; }
+    | table join_spec join_target_spec ON IDENTIFIER '.' IDENTIFIER '=' IDENTIFIER '.' IDENTIFIER
+        { $$ = yy.addLookup($1, $3, $5, $7, $9, $11); }
+    ;
+
+join_spec
+    : JOIN
+    | LEFT JOIN
+    | LEFT OUTER JOIN
+    ;
+
+join_target_spec
+    : IDENTIFIER
     ;
 
 condition
