@@ -1,6 +1,4 @@
 
-/* description: Parses and executes mathematical expressions. */
-
 /* lexical grammar */
 %lex
 %options case-insensitive
@@ -23,6 +21,15 @@ RIGHT                 return 'RIGHT'
 OUTER                 return 'OUTER'
 JOIN                  return 'JOIN'
 ON                    return 'ON'
+ORDER                 return 'ORDER'
+BY                    return 'BY'
+ASCENDING             return 'ASCENDING'
+ASC                   return 'ASCENDING'
+DESCENDING            return 'DESCENDING'
+DESC                  return 'DESCENDING'
+TOP                   return 'TOP'
+LIMIT                 return 'LIMIT'
+SKIP                  return 'SKIP'
 ['][^']*[']           return 'TEXT'
 [a-zA-Z_][a-zA-Z0-9_]*  return 'IDENTIFIER'
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
@@ -66,15 +73,75 @@ ON                    return 'ON'
 %% /* language grammar */
 
 result
-    : sql_statement
+    : sql_statement EOF
         { return $1; }
     ;
 
 sql_statement
-    : SELECT fields FROM table WHERE condition EOF
-        { $$ = yy.buildSelect($2, $6, $4); }
-    | SELECT fields FROM table EOF
-        { $$ = yy.buildSelect($2, null, $4); }
+    : SELECT top_clause fields from_clause where_clause orderby_clause skip_clause limit_clause
+        { $$ = yy.buildSelect({
+                top: $2,
+                fields: $3,
+                from: $4,
+                where: $5,
+                sort: $6,
+                skip: $7,
+                limit: $8
+            }); 
+        }
+    ;
+
+top_clause
+    :
+        { $$ = null; }
+    | TOP NUMBER
+        { $$ = yy.toPositiveInt($2, 'TOP'); }
+    ;
+
+skip_clause
+    :
+        { $$ = null; }
+    | SKIP NUMBER
+        { $$ = yy.toPositiveInt($2, 'SKIP'); }
+    ;
+
+limit_clause
+    :
+        { $$ = null; }
+    | LIMIT NUMBER
+        { $$ = yy.toPositiveInt($2, 'LIMIT'); }
+    ;
+
+from_clause
+    :
+        { $$ = null; }
+    | FROM table
+        { $$ = $2; }
+    ;
+
+where_clause
+    :
+        { $$ = null; }
+    | WHERE condition
+        { $$ = $2; }
+    ;
+
+orderby_clause
+    :
+        { $$ = null; }
+    | ORDER BY orderby_fieldspec
+        { $$ = $3; }
+    ;
+
+orderby_fieldspec
+    : IDENTIFIER
+        { $$ = yy.appendOrderBySpec($1, 1); }
+    | IDENTIFIER ASCENDING
+        { $$ = yy.appendOrderBySpec($1, 1); }
+    | IDENTIFIER DESCENDING
+        { $$ = yy.appendOrderBySpec($1, -1); }
+    | orderby_fieldspec ',' orderby_fieldspec
+        { $$ = Object.assign($1, $3); }
     ;
 
 fields

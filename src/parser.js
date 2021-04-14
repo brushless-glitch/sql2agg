@@ -1,23 +1,39 @@
 const p = require('./sql_parser.js');
 
 exports.run = function(input) {
-    p.parser.yy.buildSelect = function(fields, filters, collection) {
+    p.parser.yy.buildSelect = function(def) {
         var result = [];
-        if (filters) {
-            result.push({"$match" : filters});
+        if (def.where) {
+            result.push({"$match" : def.where});
         };
 
-        if (collection.lookups) {
-            collection.lookups.forEach(element => {
+        if (def.from.lookups) {
+            def.from.lookups.forEach(element => {
                 result.push({ "$lookup": element });
             });
         }
 
-        if (fields) {
-            result.push({"$project" : fields});
+        if (def.fields) {
+            result.push({"$project" : def.fields});
         }
 
-        return "db." + collection.main + ".aggregate(" + JSON.stringify(result, null, 2) + ")";
+        if (null != def.top) {
+            result.push({ "$limit": def.top });
+        }
+
+        if (def.sort) {
+            result.push({"$sort" : def.sort});
+        }
+
+        if (null != def.skip) {
+            result.push({ "$skip": def.skip });
+        }
+
+        if (null != def.limit) {
+            result.push({ "$limit": def.limit });
+        }
+
+        return "db." + def.from.main + ".aggregate(" + JSON.stringify(result, null, 2) + ")";
     }
 
     p.parser.yy.addLookup = function(collection, foreign, coll1, field1, coll2, field2) {
@@ -129,6 +145,20 @@ exports.run = function(input) {
         var result = {};
         result[op] = {};
         result[op][left] = right;
+        return result;
+    }
+
+    p.parser.yy.toPositiveInt = function(number, annotation) {
+        const n = Number(number);
+        if (!Number.isInteger(n) || n <= 0) {
+            throw annotation + " must be positive non-zero integer";
+        }
+        return n;
+    }
+
+    p.parser.yy.appendOrderBySpec = function(field, asc) {
+        var result = {};
+        result[field] = asc;
         return result;
     }
 

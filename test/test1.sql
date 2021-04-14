@@ -1,7 +1,10 @@
 -- Test SQL statement
 
 -- Keywords are case-insensitive
-select 
+SeLeCT 
+    -- TOP keyword is duplicated with LIMIT
+    TOP 100
+
     -- Verbatim fields
     field1, field2,
     -- name = field supported
@@ -16,6 +19,7 @@ FROM t1
 WHERE 
 
     -- Use parenthesis to combine logical operators
+    -- notice that $and and $or are combined where possible
     ((f4=977) and f5>=555) and (f6>6 or f7<=2)
     -- BETWEEN operator supported
     or f8 between 7 and 20
@@ -25,3 +29,18 @@ WHERE
     or t1 = 'blablabla'
     -- LIKE operator translated to $regex
     or city like 'L_s %'
+
+ORDER BY
+    -- default
+    field1,
+    -- ascending
+    field2 ASCENDING,
+    -- ASC is an alias for ASCENDING
+    field3 ASC,
+    -- descending
+    field4 DESCENDING,
+    -- DESC is also alias
+    field5 DESC
+
+SKIP 20
+LIMIT 50
