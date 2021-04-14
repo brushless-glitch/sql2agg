@@ -156,6 +156,8 @@ field
         { $$ = { name: $1, value: 1 }; }
     | IDENTIFIER '=' expression
         { $$ = { name: $1, value: $3 };}
+    | '*'
+        { $$ = { name: $1, value: 1 };}
     ;
 
 expression

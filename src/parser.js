@@ -13,7 +13,19 @@ exports.run = function(input) {
             });
         }
 
-        if (def.fields) {
+        if (def.fields["*"]) {
+            var af = {};
+            var count = 0;
+            for (f in def.fields) {
+                if (f != "*") {
+                    ++count;
+                    af[f] = (def.fields[f] == 1) ? "$" + f : def.fields[f];
+                }
+            }
+            if (0 != count) {
+                result.push({"$addFields" : af});
+            }
+        } else {
             result.push({"$project" : def.fields});
         }
 
