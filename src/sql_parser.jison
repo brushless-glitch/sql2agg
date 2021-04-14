@@ -51,7 +51,6 @@ LIKE                  return 'LIKE'
 %right '!'
 %right '%'
 %left ','
-%left field text_expression
 %left AND OR
 %right NOT
 %left UMINUS
@@ -84,12 +83,11 @@ field
         { $$ = { name: $1, value: 1 }; }
     | IDENTIFIER '=' expression
         { $$ = { name: $1, value: $3 };}
-/*    | expression AS IDENTIFIER
-        { $$ = { name: $3, value: $1 };}
- */   ;
+    ;
 
 expression
     : text_expression
+    | arithmetic_expression
     ;
 
 text_expression
@@ -100,8 +98,13 @@ text_expression
         { $$ = yy.combineConcats($1, $3) }
     ;
 
-numeric_expression
-    : 'NUMBER'
+text_literal
+    :  TEXT
+        { $$ = $1.replace (/(^')|('$)/g, ''); }
+    ;
+
+arithmetic_expression
+    : NUMBER
     ;
 
 table
@@ -152,11 +155,6 @@ operand_list
         { $$ = [ $1 ]; }
     | operand_list ',' operand
         { $1.push($3); $$ = $1 }
-    ;
-
-text_literal
-    :  TEXT
-        { $$ = $1.replace (/(^')|('$)/g, ''); }
     ;
 
 e
