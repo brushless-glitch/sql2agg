@@ -189,10 +189,6 @@ If ``make html`` produces the error message:
 
 Install ``xmlstarlet``. See the `xmlstarlet docs <http://xmlstar.sourceforge.net/doc/UG/xmlstarlet-ug.html>`_ for details.
 
-.. code-block:: shell
-
-   brew install xmlstarlet
-
 3.) Build Locally.
 
 Build the command line version:
