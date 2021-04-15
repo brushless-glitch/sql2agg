@@ -134,6 +134,13 @@ Supported SQL Operators
 - ``TOP``
 - ``LIMIT``
 - ``SKIP``
+- ``SQRT``
+- ``COUNT``
+- ``AVG``
+- ``SUM``
+- ``MIN``
+- ``MAX``
+- ``GROUP``
 
 =================
 Known Limitations
