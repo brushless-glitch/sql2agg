@@ -1,26 +1,61 @@
 <html lang="en">
     <head>
-        <title>SQL2AGG: SQL -> MongoDB Aggregation Pipeline Visualizer</title>
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
         <meta content="utf-8" http-equiv="encoding"/>
         <meta content="no-cache" http-equiv="cache-control"/>
         <script id="bundle" src="bundle.js"></script>
+        <style>
+            body {
+                background-color: #0d1117; 
+                font-family: "Droid Sans", sans-serif;
+            }
+
+            textarea {
+                border-color: #eee;
+                border-radius: 15px;
+                background-color: #0d1117;
+                color: #fff;
+                padding: 25px;
+            }
+
+            textarea#errMessages {
+                margin-top: 25px;
+                background-color: #0d1117;
+            }
+
+            a {
+                font-family: "Droid Sans", sans-serif;
+                font-size: 20px;
+                color: #42a5f5;
+            }
+
+            h2 {
+                font-size: 14px;
+                color: #fff;
+            }
+
+            div#github {
+                margin-top: 35px;
+            }
+        </style>
     </head>
 
     <body style="font-family: Arial !important;" onload="sql2agg(sql, mql, errMessages)">
-        <table style="width:100%; height:100%;">
+        <table style="width:100%; height:85%;">
             <tr style="height:5%">
                 <td colspan="2">
-                    <h1 style="display: inline-block">SQL to MongoDB aggregate</h1>
+                    <h1 style="display: inline-block; color: #13aa52;">SQL to MongoDB Aggregation Pipeline</h1>
                 </td>
             </tr>
             <tr style="height:90%">
                 <td>
+                    <h2>Enter SQL here:</h2>
                     <textarea id="sql" style="width:100%; height:100%" 
                         oninput="sql2agg(this, mql, errMessages)">SeLeCT field1, field2 FROM t1
                     </textarea>
                 </td>
                 <td>
+                   <h2>Resulting Aggregation Pipeline:</h2>
                     <textarea id="mql" readonly="true" style="width:100%; height:100%">MQL</textarea>
                 </td>
             </tr>
@@ -30,5 +65,8 @@
                 </td>
             </tr>
         </table>
+        <div id="github">
+            <a href="https://github.com/brushless-glitch/sql2agg/">View the project on Github!</a>
+        </div>
     </body>
 </html>
