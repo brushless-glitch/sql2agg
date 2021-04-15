@@ -155,7 +155,7 @@ String Behavior
 
 - Only *one* ``LEFT OUTER JOIN`` is supported. The syntax must follow this example:
 
-`[LEFT [OUTER]] JOIN <collection> ON <maincollection>.<field> = <collection>.<field>`
+``[LEFT [OUTER]] JOIN <collection> ON <maincollection>.<field> = <collection>.<field>``
 
 ============
 Installation
