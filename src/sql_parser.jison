@@ -31,6 +31,12 @@ TOP                   return 'TOP'
 LIMIT                 return 'LIMIT'
 SKIP                  return 'SKIP'
 SQRT                  return 'SQRT'
+COUNT                 return 'COUNT'
+AVG                   return 'AVG'
+SUM                   return 'SUM'
+MIN                   return 'MIN'
+MAX                   return 'MAX'
+GROUP                 return 'GROUP'
 ['][^']*[']           return 'TEXT'
 [a-zA-Z_][a-zA-Z0-9_]*  return 'IDENTIFIER'
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
@@ -79,15 +85,17 @@ result
     ;
 
 sql_statement
-    : SELECT top_clause fields from_clause where_clause orderby_clause skip_clause limit_clause
+    : SELECT top_clause fields from_clause where_clause groupby_clause orderby_clause 
+             skip_clause limit_clause
         { $$ = yy.buildSelect({
                 top: $2,
                 fields: $3,
                 from: $4,
                 where: $5,
-                sort: $6,
-                skip: $7,
-                limit: $8
+                group: $6,
+                sort: $7,
+                skip: $8,
+                limit: $9
             }); 
         }
     ;
@@ -145,11 +153,29 @@ orderby_fieldspec
         { $$ = Object.assign($1, $3); }
     ;
 
+groupby_names
+    : expression
+        { $$ = yy.appendGroupBy(null, $1); }
+    | groupby_names ',' expression
+        { $$ = yy.appendGroupBy($1, $3); }
+    ;
+
+groupby_clause
+    :
+        { $$ = null; }
+    | GROUP BY groupby_names
+        { $$ = $3; }
+    ;
+
 fields
     : field
         { $$ = yy.appendField(null, $1);}
+    | aggregate_field
+        { $$ = yy.appendAgg(null, $1);}
     | fields ',' field
         { $$ = yy.appendField($1, $3);}
+    | fields ',' aggregate_field
+        { $$ = yy.appendAgg($1, $3);}
     ;
 
 field
@@ -159,6 +185,19 @@ field
         { $$ = { name: $1, value: $3.value };}
     | '*'
         { $$ = { name: $1, value: 1 };}
+    ;
+
+aggregate_field
+    : COUNT '(' '*' ')'
+        { $$ = { name: 'count', value: { '$sum': 1 } }; }
+    | AVG '(' IDENTIFIER ')'
+        { $$ = { name: 'avg_of_'+$3, value: { '$avg': '$' + $3 } }; }
+    | SUM '(' IDENTIFIER ')'
+        { $$ = { name: 'sum_of_'+$3, value: { '$sum': '$' + $3 } }; }
+    | MIN '(' IDENTIFIER ')'
+        { $$ = { name: 'min_of_'+$3, value: { '$min': '$' + $3 } }; }
+    | MAX '(' IDENTIFIER ')'
+        { $$ = { name: 'max_of_'+$3, value: { '$max': '$' + $3 } }; }
     ;
 
 expression

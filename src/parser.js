@@ -13,20 +13,29 @@ exports.run = function(input) {
             });
         }
 
-        if (def.fields["*"]) {
-            var af = {};
-            var count = 0;
-            for (f in def.fields) {
-                if (f != "*") {
-                    ++count;
-                    af[f] = (def.fields[f] == 1) ? "$" + f : def.fields[f];
-                }
-            }
-            if (0 != count) {
-                result.push({"$addFields" : af});
-            }
+        if (def.fields.aggregate && !def.group) {
+            throw "When you have aggregate expressions, there must be GROUP BY"
+        }
+
+        if (def.group) {
+            const o = Object.assign({ _id: def.group }, def.fields.aggregate);
+            result.push({"$group" : o});
         } else {
-            result.push({"$project" : def.fields});
+            if (def.fields.regular["*"]) {
+                var af = {};
+                var count = 0;
+                for (f in def.fields.regular) {
+                    if (f != "*") {
+                        ++count;
+                        af[f] = (def.fields.regular[f] == 1) ? "$" + f : def.fields.regular[f];
+                    }
+                }
+                if (0 != count) {
+                    result.push({"$addFields" : af});
+                }
+            } else {
+                result.push({"$project" : def.fields.regular});
+            }
         }
 
         if (null != def.top) {
@@ -75,9 +84,24 @@ exports.run = function(input) {
     }
 
     p.parser.yy.appendField = function(fields, field) {
-        var o = fields ? fields : {};
-        o[field.name] = field.value;
+        var o = fields ? fields : { regular: {} };
+        o.regular[field.name] = field.value;
         return o;
+    }
+
+    p.parser.yy.appendAgg = function(fields, agg) {
+        var o = fields ? fields : { regular: {} };
+        if (!o.aggregate) {
+            o.aggregate = {};
+        }
+        o.aggregate[agg.name] = agg.value;
+        return o;
+    }
+
+    p.parser.yy.appendGroupBy = function(groupBy, expr) {
+        var s = groupBy ? groupBy : [];
+        s.push(expr.value);
+        return s;
     }
 
     p.parser.yy.combineConditions = function(left, op, right) {
