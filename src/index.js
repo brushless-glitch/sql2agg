@@ -6,6 +6,9 @@ window.sql2agg = function(src, dest, errConsole) {
         dest.value = result;
         src.title = "";
         src.style.borderColor = "";
+
+        errConsole.style.borderColor = "";
+        errConsole.value = "(Error messages will appear here.)";
     } catch (e) {
         errMsg = String(e);
 
