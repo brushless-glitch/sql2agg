@@ -9,6 +9,9 @@ SeLeCT
     field1, field2,
     -- name = field supported
     just_name = first_name,
+    -- Arithmetic expressions
+    i_square = SQRT(-1) ^ 2,
+    total = (price - discount) * count + tax,
     -- Text concatenation
     full_name = first_name + ' ' + last_name
 FROM t1

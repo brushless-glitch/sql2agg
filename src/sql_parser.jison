@@ -30,6 +30,7 @@ DESC                  return 'DESCENDING'
 TOP                   return 'TOP'
 LIMIT                 return 'LIMIT'
 SKIP                  return 'SKIP'
+SQRT                  return 'SQRT'
 ['][^']*[']           return 'TEXT'
 [a-zA-Z_][a-zA-Z0-9_]*  return 'IDENTIFIER'
 [0-9]+("."[0-9]+)?\b  return 'NUMBER'
@@ -155,31 +156,41 @@ field
     : IDENTIFIER
         { $$ = { name: $1, value: 1 }; }
     | IDENTIFIER '=' expression
-        { $$ = { name: $1, value: $3 };}
+        { $$ = { name: $1, value: $3.value };}
     | '*'
         { $$ = { name: $1, value: 1 };}
     ;
 
 expression
-    : text_expression
-    | arithmetic_expression
-    ;
-
-text_expression
     : text_literal
+        { $$ = { isText: true, value: $1 }; }
+    | NUMBER
+        { $$ = { isNumberLiteral: true, value: Number($1) }; }
     | IDENTIFIER
-        { $$ = '$' + $1; }
-    | text_expression '+' text_expression
-        { $$ = yy.combineConcats($1, $3); }
+        { $$ = { value: '$' + $1 }; }
+    | expression '+' expression
+        { $$ = yy.combineLeftRight('+', $1, $3); }
+    | expression '-' expression
+        { $$ = yy.combineLeftRight('$subtract', $1, $3); }
+    | expression '*' expression
+        { $$ = yy.combineLeftRight('$multiply', $1, $3); }
+    | expression '/' expression
+        { $$ = yy.combineLeftRight('$divide', $1, $3); }
+    | expression '%' expression
+        { $$ = yy.combineLeftRight('$mod', $1, $3); }
+    | expression '^' expression
+        { $$ = yy.combineLeftRight('$pow', $1, $3); }
+    | '-' expression %prec UMINUS
+        { $$ = yy.buildUnaryMinuxExpr($2); }
+    | SQRT '(' expression ')'
+        { $$ = { value: { "$sqrt": $3 } }; }
+    | '(' expression ')'
+        { $$ = $2; }
     ;
 
 text_literal
     :  TEXT
         { $$ = $1.replace (/(^')|('$)/g, ''); }
-    ;
-
-arithmetic_expression
-    : NUMBER
     ;
 
 table
@@ -243,34 +254,5 @@ operand_list
         { $$ = [ $1 ]; }
     | operand_list ',' operand
         { $1.push($3); $$ = $1 }
-    ;
-
-e
-    : e '+' e
-        {$$ = $1+$3;}
-    | e '-' e
-        {$$ = $1-$3;}
-    | e '*' e
-        {$$ = $1*$3;}
-    | e '/' e
-        {$$ = $1/$3;}
-    | e '^' e
-        {$$ = Math.pow($1, $3);}
-    | e '!'
-        {{
-          $$ = (function fact (n) { return n==0 ? 1 : fact(n-1) * n })($1);
-        }}
-    | e '%'
-        {$$ = $1/100;}
-    | '-' e %prec UMINUS
-        {$$ = -$2;}
-    | '(' e ')'
-        {$$ = $2;}
-    | NUMBER
-        {$$ = Number(yytext);}
-    | E
-        {$$ = Math.E;}
-    | PI
-        {$$ = Math.PI;}
     ;
 

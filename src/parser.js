@@ -103,23 +103,57 @@ exports.run = function(input) {
         return result;
     }
 
-    p.parser.yy.combineConcats = function(left, right) {
+    function combineLeftRightChainable(op, isText, left, right) {
         var concats = [];
-        if (left["$concat"]) {
-            left["$concat"].forEach(element => {
+        if (left[op]) {
+            left[op].forEach(element => {
                 concats.push(element);
             })
         } else {
             concats.push(left);
         }
-        if (right["$concat"]) {
-            right["$concat"].forEach(element => {
+        if (right[op]) {
+            right[op].forEach(element => {
                 concats.push(element);
             })
         } else {
             concats.push(right);
         }
-        return { "$concat": concats };
+
+        var result = { isText: isText, value: {} }
+        result.value[op] = concats;
+        return result;
+    }
+
+    p.parser.yy.combineLeftRight = function(op, left, right) {
+        const isText = left.isText || right.isText;
+        if (op == '+') {
+            const op2 = (left.isText || right.isText) ? "$concat" : "$add";
+            return combineLeftRightChainable(op2, isText, left.value, right.value);
+        }
+        if (isText) {
+            throw "With text literals, only '+' operator is supported"
+        }
+
+        if (op == "$multiply") {
+            return combineLeftRightChainable(op, false, left.value, right.value);        
+        }
+
+        if (op == "$divide" || op == "$subtract" || op == "$pow" || op == "$mod") {
+            var result = { value: {} }
+            result.value[op] = [ left.value, right.value ];
+            return result;
+        }
+
+        throw "Unknown operator " + op;
+    }
+
+    p.parser.yy.buildUnaryMinuxExpr = function(right) {
+        if (right.isNumberLiteral) {
+            return { value: -right.value };
+        } else {
+            return p.parser.yy.combineLeftRight('$subtract', { value: 0 }, right);
+        }
     }
 
     p.parser.yy.notCondition = function(cond) {
