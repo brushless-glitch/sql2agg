@@ -1,49 +1,35 @@
--- Test SQL statement
+-- This is a sample SQL for SQL2AGG
+-- demonstrates capabilities of the tool
+--
 
--- Keywords are case-insensitive
-SeLeCT 
-    -- TOP keyword is duplicated with LIMIT
-    TOP 100
-
+SELECT 
     -- Verbatim fields
-    field1, field2,
-    -- name = field supported
-    just_name = first_name,
-    -- Arithmetic expressions
-    i_square = SQRT(-1) ^ 2,
-    total = (price - discount) * item_count + tax,
+    address, zip_code,
+    -- name = field supported, but not field AS name
+    surname = last_name,
     -- Text concatenation
-    full_name = first_name + ' ' + last_name
-FROM t1
+    full_name = first_name + ' ' + last_name,
+    -- Arithmetic expressions
+    total = ((price + tax) * number * (1 - discount)) + shipping_fee
+
+FROM orders
     -- See README for limitations on joins
-    LEFT OUTER JOIN t2 ON t1.xx =  t2.zz
-    LEFT JOIN t3 ON t1.yy =  t3.zzz
+    LEFT JOIN users ON orders.user_id =  users.id
 
 WHERE 
 
-    -- Use parenthesis to combine logical operators
-    -- notice that $and and $or are combined where possible
-    ((f4=977) and f5>=555) and (f6>6 or f7<=2)
-    -- BETWEEN operator supported
-    or f8 between 7 and 20
-    -- IN operator supported using $in
-    and f9 in (1,2,3,15,222)
-    -- text comparison
-    or t1 = 'blablabla'
-    -- LIKE operator translated to $regex
-    or city like 'L_s %'
+    ((price < 0.95 or price > 1000) and tax = 0)
+    or discount between 0.01 and 0.10
+    and category in (1,2,3,15,222)
+    and order_status = 'complete'
+    and city like 'L_s %'
 
 ORDER BY
-    -- default
-    field1,
-    -- ascending
-    field2 ASCENDING,
-    -- ASC is an alias for ASCENDING
-    field3 ASC,
-    -- descending
-    field4 DESCENDING,
-    -- DESC is also alias
-    field5 DESC
+    price,
+    number ASCENDING,
+    last_name ASC,
+    discount DESCENDING,
+    tax DESC
 
 SKIP 20
 LIMIT 50
